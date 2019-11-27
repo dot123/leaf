@@ -1,11 +1,12 @@
 package json
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mitchellh/mapstructure"
 	"github.com/name5566/leaf/chanrpc"
 	"github.com/name5566/leaf/log"
+	"github.com/vmihailenco/msgpack"
 	"reflect"
 )
 
@@ -24,7 +25,7 @@ type MsgHandler func([]interface{})
 
 type MsgRaw struct {
 	msgID      string
-	msgRawData json.RawMessage
+	msgRawData interface{}
 }
 
 func NewProcessor() *Processor {
@@ -135,8 +136,8 @@ func (p *Processor) Route(msg interface{}, userData interface{}) error {
 
 // goroutine safe
 func (p *Processor) Unmarshal(data []byte) (interface{}, error) {
-	var m map[string]json.RawMessage
-	err := json.Unmarshal(data, &m)
+	var m map[string]interface{}
+	err := msgpack.Unmarshal(data, &m)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +156,7 @@ func (p *Processor) Unmarshal(data []byte) (interface{}, error) {
 			return MsgRaw{msgID, data}, nil
 		} else {
 			msg := reflect.New(i.msgType.Elem()).Interface()
-			return msg, json.Unmarshal(data, msg)
+			return msg, mapstructure.Decode(data, msg) //使用mapstructure则只有基本数据类型
 		}
 	}
 
@@ -175,6 +176,6 @@ func (p *Processor) Marshal(msg interface{}) ([][]byte, error) {
 
 	// data
 	m := map[string]interface{}{msgID: msg}
-	data, err := json.Marshal(m)
+	data, err := msgpack.Marshal(m)
 	return [][]byte{data}, err
 }
