@@ -20,7 +20,7 @@ func GetRequestCount() int {
 	agentsMutex.RLock()
 	defer agentsMutex.RUnlock()
 
-	var count int = 0
+	var count = 0
 	for _, agent := range agents {
 		count += agent.GetRequestCount()
 	}

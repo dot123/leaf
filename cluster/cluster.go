@@ -1,18 +1,18 @@
 package cluster
 
 import (
-	"math"
-	"time"
-	"reflect"
-	"net"
 	"fmt"
-	"github.com/name5566/leaf/log"
-	"github.com/name5566/leaf/conf"
-	"github.com/name5566/leaf/network"
 	"github.com/name5566/leaf/chanrpc"
+	"github.com/name5566/leaf/conf"
+	"github.com/name5566/leaf/log"
+	"github.com/name5566/leaf/network"
 	lgob "github.com/name5566/leaf/network/gob"
+	"math"
+	"net"
+	"reflect"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 const (
@@ -51,6 +51,11 @@ func Init() {
 	if conf.HeartBeatInterval <= 0 {
 		conf.HeartBeatInterval = 5
 		log.Release("invalid HeartBeatInterval, reset to %v", conf.HeartBeatInterval)
+	}
+
+	// 添加服务注册
+	if conf.Discovery {
+		RegisterServer()
 	}
 
 	wg.Add(1)
@@ -178,6 +183,11 @@ func Destroy() {
 		server.Close()
 	}
 
+	if conf.Discovery {
+		// 移除服务注册
+		RemoveServer()
+	}
+
 	clientsMutex.Lock()
 	for _, client := range clients {
 		client.Close()
@@ -257,7 +267,7 @@ func (a *Agent) Run() {
 	for {
 		data, err := a.conn.ReadMsg()
 		if err != nil {
-			log.Debug("read message: %v", err)
+			log.Debug("cluster read message: %v", err)
 			break
 		}
 

@@ -19,4 +19,12 @@ var (
 	ConnAddrs         map[string]string
 	PendingWriteNum   int
 	HeartBeatInterval int
+
+	// etcd
+	Discovery  bool
+	Endpoints  []string
+	ServerType string
+	Watcher    []string
+	WSAddr     string
+	TCPAddr    string
 )
