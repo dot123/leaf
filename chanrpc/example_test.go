@@ -15,7 +15,7 @@ func Example() {
 	// goroutine 1
 	go func() {
 		s.Register("f0", func(args []interface{}) (err error) {
-			return
+			return nil
 		})
 
 		s.Register("f1", func(args []interface{}) (interface{}, error) {

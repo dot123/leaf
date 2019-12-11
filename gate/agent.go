@@ -2,8 +2,6 @@ package gate
 
 import (
 	"net"
-	"github.com/name5566/leaf/module"
-	"github.com/name5566/leaf/chanrpc"
 )
 
 type Agent interface {
@@ -14,6 +12,4 @@ type Agent interface {
 	Destroy()
 	UserData() interface{}
 	SetUserData(data interface{})
-	Skeleton() *module.Skeleton
-	ChanRPC()  *chanrpc.Server
 }
