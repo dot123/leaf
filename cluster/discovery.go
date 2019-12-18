@@ -29,8 +29,8 @@ type ServerInfo struct {
 var (
 	ttl           int64            = 45
 	LeaseID       clientv3.LeaseID = 0
-	serverMap                      = map[string]map[string]*ServerInfo{}
-	serverIdMap                    = map[string]clientv3.LeaseID{}
+	serverMap                      = make(map[string]map[string]*ServerInfo)
+	serverIdMap                    = make(map[string]clientv3.LeaseID)
 	ConfigPath                     = "config"
 	PathSeparator                  = "/"
 )
@@ -258,7 +258,7 @@ func GetBestServerInfo(args ...interface{}) ([]interface{}, error) {
 	}
 
 	if serverInfo == nil {
-		return []interface{}{}, errors.New(fmt.Sprintf("No %s server to alloc", serverType))
+		return nil, errors.New(fmt.Sprintf("No %s server to alloc", serverType))
 	} else {
 		err := etcd.MarshalKey(key, *serverInfo) //设置进入的服务器信息
 		return []interface{}{serverInfo.Name, serverInfo.WSAddr}, err
